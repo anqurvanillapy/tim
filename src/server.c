@@ -1,4 +1,4 @@
-#include "xirc.h"
+#include "tim.h"
 
 int
 main(int argc, const char *argv[])

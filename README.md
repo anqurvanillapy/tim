@@ -1,5 +1,11 @@
-xirc
-====
+tim
+===
 
-An implementation of IRC-like minimal chatting protocol with server and
-client, based on *nix OSes.
+**Warning:** Code for learning.
+
+A TTY-based instant messaging app on Linux, hence *tim*.
+
+License
+-------
+
+ISC
