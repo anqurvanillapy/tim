@@ -2,13 +2,15 @@
 #define __tim__tim_h
 
 #include <stdio.h>
-#include <sys/mman.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <fcntl.h>
 #include <string.h>
 #include <semaphore.h>
 
-/// Default permissions for new files (Users read/write, group read, others
+/// Default permissions for new files (users read/write, group read, others
 /// read).
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 
