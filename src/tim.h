@@ -2,6 +2,7 @@
 #define __tim__tim_h
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,5 +40,15 @@ struct tim_shm {
     long    msgoff[NMSG];           // offset of each message
     char    msgdata[NMSG * MSGSIZ]; // actual messages
 };
+
+void    Open(const char *pathname, int flags);
+void    Close(int fd);
+void    Sem_init(sem_t *sem, int pshared, unsigned int value);
+void    Sem_wait(sem_t *sem);
+void    Sem_post(sem_t *sem);
+int     Shm_open(const char *name, int oflag, mode_t mode);
+void*   Mmap(void *addr, size_t length, int prot, int flags, int fd,
+             off_t offset);
+void    Ftruncate(int fd, off_t length);
 
 #endif // !__tim__tim_h

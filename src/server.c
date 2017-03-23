@@ -4,7 +4,8 @@ int
 main(int argc, const char *argv[])
 {
     int ipcfd, connfd, listenfd;
-    int msgi, lastoverflow;
+    int msgi, temp, lastoverflow;
+    long offset;
     char ipc_name[20];
     struct tim_shm *buf;
 
@@ -16,10 +17,10 @@ main(int argc, const char *argv[])
     // SHM object initialization.
     shm_unlink(ipc_name);   // OK if it fails
     ipcfd = Shm_open(ipc_name, O_RDWR | O_CREAT | O_EXCL, FILE_MODE);
-    buf = Mmap(NULL, sizeof(struct buf), PROT_READ | PROT_WRITE,
+    buf = Mmap(NULL, sizeof(struct tim_shm), PROT_READ | PROT_WRITE,
                MAP_SHARED, ipcfd, 0 /* offset */);
-    Ftruncate(ipcfd, sizof(struct buf));
-    Close(fd);
+    Ftruncate(ipcfd, sizeof(struct tim_shm));
+    Close(ipcfd);
 
     // Initialize the array of offsets.
     for (msgi = 0; msgi < NMSG; ++msgi) buf->msgoff[msgi] = msgi * MSGSIZ;
@@ -33,7 +34,26 @@ main(int argc, const char *argv[])
     // Server message polling.
     msgi = lastoverflow = 0;
     for (;;) {
+       Sem_wait(&buf->nstored);
+       Sem_wait(&buf->mutex);
 
+       // Acquire a message.
+       offset = buf->msgoff[msgi];
+       printf("%d: %s\n", msgi, &buf->msgdata[offset]);
+       if (++msgi >= NMSG) msgi = 0;   // circular buffer
+
+       Sem_post(&buf->mutex);
+       Sem_post(&buf->nempty);
+
+       // Handle a overflow message.
+       Sem_wait(&buf->mutex_overflow);
+       temp = buf->noverflow;   // don't printf while mutex held
+       Sem_post(&buf->mutex_overflow);
+
+       if (temp != lastoverflow) {
+           printf("noverflow = %d\n", temp);
+           lastoverflow = temp;
+       }
     }
 
     return 0;
